@@ -32,12 +32,26 @@
             ++i;
           }
           that.settings.sprites = coords;
+          if (that.isHighDpiAvailable(that.settings.sheet)) that.highDpiTheme = true;
           return callback();
         });
       };
 
+      Theme.prototype.isHighDpiAvailable = function(sheet) {
+        return !!sheet.highDpiFilename;
+      };
+
+      Theme.prototype.setHighDpiCanvas = function(highDpiCanvas) {
+        this.highDpiCanvas = highDpiCanvas;
+      }
+
+      Theme.prototype.isRenderInHighDpi = function() {
+        return this.highDpiTheme && this.highDpiCanvas;
+      }
+
       Theme.prototype.getSpriteSheetUrl = function() {
-        return ("/img/themes/" + this.themeName + "/") + this.settings.sheet.filename;
+        return ("/img/themes/" + this.themeName + "/") +
+          (this.isRenderInHighDpi() ? this.settings.sheet.highDpiFilename : this.settings.sheet.filename);
       };
 
       Theme.prototype.getCoordinates = function(name) {
@@ -46,6 +60,10 @@
         } else {
           return null;
         }
+      };
+
+      Theme.prototype.getSheetCoordinate = function(coord) {
+          return this.isRenderInHighDpi() ? coord * 2 : coord;
       };
 
       Theme.prototype.getTileCoordinates = function(tileType, tileSubtype, tileOwner) {
